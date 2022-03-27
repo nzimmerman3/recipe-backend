@@ -1,7 +1,5 @@
 const { MongoClient } = require("mongodb");
 const connectionString = process.env.ATLAS_URI;
-// const connectionString =
-//   "mongodb+srv://nzimmerman3:7loqEIKKNLQJxE2C@cluster0.fosho.mongodb.net/myFirstDatabase?retryWrites=true&w=majority";
 const client = new MongoClient(connectionString);
 
 let dbConnection;

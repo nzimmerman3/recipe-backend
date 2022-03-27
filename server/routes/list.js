@@ -17,4 +17,13 @@ recordRoutes.route("/api").get(async function (_req, res) {
     });
 });
 
+recordRoutes.route("/api").post((req, res) => {
+  const dbConnect = dbo.getDb();
+  console.log("new message!");
+  console.log(req.body);
+  // const recipe = {
+
+  // }
+});
+
 module.exports = recordRoutes;
