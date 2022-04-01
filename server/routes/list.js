@@ -19,16 +19,30 @@ recordRoutes.route("/api/recipes").get(async function (_req, res) {
     });
 });
 
+recordRoutes.route("/api/recipe").get(async (req, res) => {
+  const dbConnect = dbo.getDb();
+  const match = { _id: mongoose.Types.ObjectId(req.query.recipe) };
+
+  const result = await dbConnect
+    .collection("recipes")
+    .findOne(match, (err, result) => {
+      console.log("Sending recipe");
+      res.json(result);
+    });
+});
+
+//62432214ba4b9c35a33adf1b
+
 recordRoutes.route("/api/recipes").post((req, res) => {
   const dbConnect = dbo.getDb();
   console.log("New recipe:");
-  console.log(req.body);
   dbConnect.collection("recipes").insertOne(req.body, (err, result) => {
     if (err) {
       res.status(400).send("Error adding recipe");
     } else {
       console.log("Added new recipe");
-      res.status(204).send();
+      res.send(req.body._id);
+      // res.status(204).send();
     }
   });
 });
@@ -52,6 +66,8 @@ recordRoutes.route("/api/favorites").get((req, res) => {
   const result = dbConnect.collection("favorites").findOne({ match });
   res.json(result);
 });
+
+//TODO endpoint where body of post message
 // favorites[userId] = [recipeId, recipdId, ...]
 
 module.exports = recordRoutes;
