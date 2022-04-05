@@ -26,8 +26,12 @@ recordRoutes.route("/api/recipe").get(async (req, res) => {
   const result = await dbConnect
     .collection("recipes")
     .findOne(match, (err, result) => {
-      console.log("Sending recipe");
-      res.json(result);
+      if (err) {
+        res.status(400).send("Error getting recipe");
+      } else {
+        console.log("Sending recipe");
+        res.json(result);
+      }
     });
 });
 
@@ -61,13 +65,44 @@ recordRoutes.route("/api/recipes").delete((req, res) => {
 
 recordRoutes.route("/api/favorites").get((req, res) => {
   const dbConnect = dbo.getDb();
-  const match = { _id: mongoose.Types.ObjectId(req.body.user) };
-  console.log("Getting favorites");
-  const result = dbConnect.collection("favorites").findOne({ match });
-  res.json(result);
+  const match = { user: req.query.id };
+  dbConnect.collection("favorites").findOne(match, (err, result) => {
+    if (err) {
+      res.status(400).send("Error getting favorites");
+    } else {
+      console.log("Sending favorites");
+      res.json(result);
+    }
+  });
 });
 
-//TODO endpoint where body of post message
-// favorites[userId] = [recipeId, recipdId, ...]
+recordRoutes.route("/api/favorites").put(({ body }, res) => {
+  const dbConnect = dbo.getDb();
+  const match = { user: body.user };
+  if (body.favorite) {
+    //add recipe to user's favorite list
+    try {
+      dbConnect
+        .collection("favorites")
+        .updateOne(
+          match,
+          { $push: { favorites: body.recipe } },
+          { upsert: true }
+        );
+      console.log("Added recipe to favorites");
+    } catch (error) {
+      console.log(error);
+    }
+  } else {
+    try {
+      dbConnect
+        .collection("favorites")
+        .updateOne(match, { $pull: { favorites: body.recipe } });
+      console.log("Removed recipe from favorites");
+    } catch (error) {
+      console.log(error);
+    }
+  }
+});
 
 module.exports = recordRoutes;
